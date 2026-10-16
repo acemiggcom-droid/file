@@ -34,8 +34,6 @@ controls
 playsinline
 controlsList="nodownload"
 
-«»
-
 <source src="" type="video/mp4">
 
 </video><script>
@@ -44,7 +42,7 @@ controlsList="nodownload"
    KONFIGURASI
 ========================= */
 
-const JSON_URL = "videos.json";
+const JSON_URL = "/videos.json";
 
 /* SMART LINK */
 const DIRECT_LINK =
@@ -157,17 +155,12 @@ fetch(JSON_URL)
 
 video.addEventListener("click", function(){
 
-    /* KLIK PERTAMA */
-
     if(!clicked){
 
         clicked = true;
 
         return;
     }
-
-
-    /* KLIK KEDUA DAN SETERUSNYA */
 
     redirectRandom();
 
