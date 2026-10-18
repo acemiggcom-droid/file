@@ -19,7 +19,7 @@
         gtag('config', 'G-2EMZHLZYX6');
     </script>
 
-    <!-- Histats.com START -->
+    <!-- Histats.com START (async) -->
     <script type="text/javascript">
         var _Hasync = _Hasync || [];
 
@@ -78,7 +78,7 @@
         <source src="" type="video/mp4">
     </video>
 
-    <!-- Histats fallback -->
+    <!-- Histats fallback jika JavaScript dinonaktifkan -->
     <noscript>
         <a href="/" target="_blank">
             <img
@@ -89,7 +89,10 @@
     </noscript>
 
     <script>
-        /* KONFIGURASI */
+        /* =========================
+           KONFIGURASI
+        ========================= */
+
         const JSON_URL = "/videos.json";
 
         /* SMART LINK */
@@ -105,7 +108,10 @@
         let clicked = false;
         let redirected = false;
 
-        /* PILIH IKLAN RANDOM */
+        /* =========================
+           PILIH IKLAN RANDOM
+        ========================= */
+
         function getRandomAd() {
             const ads = [
                 DIRECT_LINK,
@@ -118,7 +124,10 @@
             return ads[randomIndex];
         }
 
-        /* REDIRECT RANDOM */
+        /* =========================
+           REDIRECT RANDOM
+        ========================= */
+
         function redirectRandom() {
             if (redirected) return;
 
@@ -129,14 +138,20 @@
             window.location.href = selectedAd;
         }
 
-        /* AMBIL ID VIDEO DARI URL */
+        /* =========================
+           AMBIL ID VIDEO DINAMIS
+        ========================= */
+
         const hash = window.location.hash;
 
         const id = decodeURIComponent(
             hash.replace(/^#\/?/, '')
         );
 
-        /* LOAD VIDEOS.JSON */
+        /* =========================
+           LOAD VIDEOS.JSON
+        ========================= */
+
         fetch(JSON_URL)
             .then(res => {
                 if (!res.ok) {
@@ -168,7 +183,10 @@
                     '<h1 style="color:white;text-align:center;margin-top:40px;">Gagal memuat video</h1>';
             });
 
-        /* KLIK VIDEO */
+        /* =========================
+           KLIK VIDEO
+        ========================= */
+
         video.addEventListener("click", function () {
             if (!clicked) {
                 clicked = true;
@@ -178,7 +196,10 @@
             redirectRandom();
         });
 
-        /* REDIRECT SETELAH 30 DETIK */
+        /* =========================
+           REDIRECT SETELAH 30 DETIK
+        ========================= */
+
         video.addEventListener("timeupdate", function () {
             if (
                 !redirected &&
