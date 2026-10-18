@@ -1,213 +1,207 @@
-<!DOCTYPE html>
-<html lang="id">
+<!DOCTYPE html><html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Video Player</title>
+    <title>Video Player</title><!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-2XMZNLZYX6"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
 
-    <!-- Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-2XMZNLZYX6"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
+    function gtag() {
+        dataLayer.push(arguments);
+    }
 
-        function gtag() {
-            dataLayer.push(arguments);
-        }
+    gtag('js', new Date());
+    gtag('config', 'G-2EMZHLZYX6');
+</script>
 
-        gtag('js', new Date());
-        gtag('config', 'G-2EMZHLZYX6');
-    </script>
+<!-- Histats.com START (async) -->
+<script type="text/javascript">
+    var _Hasync = _Hasync || [];
 
-    <!-- Histats.com START (async) -->
-    <script type="text/javascript">
-        var _Hasync = _Hasync || [];
+    _Hasync.push([
+        'Histats.start',
+        '1,5058948,4,0,0,0,00010000'
+    ]);
 
-        _Hasync.push([
-            'Histats.start',
-            '1,5058948,4,0,0,0,00010000'
-        ]);
+    _Hasync.push(['Histats.fasi', '1']);
+    _Hasync.push(['Histats.track_hits', '']);
 
-        _Hasync.push(['Histats.fasi', '1']);
-        _Hasync.push(['Histats.track_hits', '']);
+    (function () {
+        var hs = document.createElement('script');
+        hs.type = 'text/javascript';
+        hs.async = true;
+        hs.src = '//s10.histats.com/js15_as.js';
 
-        (function () {
-            var hs = document.createElement('script');
-            hs.type = 'text/javascript';
-            hs.async = true;
-            hs.src = '//s10.histats.com/js15_as.js';
+        (document.getElementsByTagName('head')[0] ||
+         document.getElementsByTagName('body')[0])
+            .appendChild(hs);
+    })();
+</script>
+<!-- Histats.com END -->
 
-            (document.getElementsByTagName('head')[0] ||
-             document.getElementsByTagName('body')[0])
-                .appendChild(hs);
-        })();
-    </script>
-    <!-- Histats.com END -->
+<style>
+    body {
+        margin: 0;
+        background: #000;
+    }
 
-    <style>
-        body {
-            margin: 0;
-            background: #000;
-        }
+    video {
+        width: 100%;
+        height: 100vh;
+        object-fit: contain;
+        background: #000;
+    }
 
-        video {
-            width: 100%;
-            height: 100vh;
-            object-fit: contain;
-            background: #000;
-        }
+    #title {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        color: #fff;
+        font-size: 14px;
+    }
+</style>
 
-        #title {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            color: #fff;
-            font-size: 14px;
-        }
-    </style>
-</head>
+</head><body><!-- Video Player -->
+<video
+    id="player"
+    controls
+    playsinline
+    controlsList="nodownload">
+    <source src="" type="video/mp4">
+</video>
 
-<body>
+<!-- Histats fallback jika JavaScript dinonaktifkan -->
+<noscript>
+    <a href="/" target="_blank">
+        <img
+            src="//sstatic1.histats.com/0.gif?5058948&101"
+            alt=""
+            border="0">
+    </a>
+</noscript>
 
-    <!-- Video Player -->
-    <video
-        id="player"
-        controls
-        playsinline
-        controlsList="nodownload">
-        <source src="" type="video/mp4">
-    </video>
+<script>
+    /* =========================
+       KONFIGURASI
+    ========================= */
 
-    <!-- Histats fallback jika JavaScript dinonaktifkan -->
-    <noscript>
-        <a href="/" target="_blank">
-            <img
-                src="//sstatic1.histats.com/0.gif?5058948&101"
-                alt=""
-                border="0">
-        </a>
-    </noscript>
+    const JSON_URL = "/videos.json";
 
-    <script>
-        /* =========================
-           KONFIGURASI
-        ========================= */
+    /* SMART LINK */
+    const DIRECT_LINK =
+        "https://auctionr.org/4/fd7294e24ebdccb582d7959eb5c35db8";
 
-        const JSON_URL = "/videos.json";
+    /* SHOPEE */
+    const SHOPEE_LINK =
+        "https://collshp.com/mycol37";
 
-        /* SMART LINK */
-        const DIRECT_LINK =
-            "https://auctionr.org/4/fd7294e24ebdccb582d7959eb5c35db8";
+    const video = document.getElementById("player");
 
-        /* SHOPEE */
-        const SHOPEE_LINK =
-            "https://s.shopee.co.id/6q1ZKA9oXe";
+    let clicked = false;
+    let redirected = false;
 
-        const video = document.getElementById("player");
+    /* =========================
+       PILIH IKLAN RANDOM
+    ========================= */
 
-        let clicked = false;
-        let redirected = false;
+    function getRandomAd() {
+        const ads = [
+            DIRECT_LINK,
+            SHOPEE_LINK
+        ];
 
-        /* =========================
-           PILIH IKLAN RANDOM
-        ========================= */
+        const randomIndex =
+            Math.floor(Math.random() * ads.length);
 
-        function getRandomAd() {
-            const ads = [
-                DIRECT_LINK,
-                SHOPEE_LINK
-            ];
+        return ads[randomIndex];
+    }
 
-            const randomIndex =
-                Math.floor(Math.random() * ads.length);
+    /* =========================
+       REDIRECT RANDOM
+    ========================= */
 
-            return ads[randomIndex];
-        }
+    function redirectRandom() {
+        if (redirected) return;
 
-        /* =========================
-           REDIRECT RANDOM
-        ========================= */
+        redirected = true;
 
-        function redirectRandom() {
-            if (redirected) return;
+        const selectedAd = getRandomAd();
 
-            redirected = true;
+        window.location.href = selectedAd;
+    }
 
-            const selectedAd = getRandomAd();
+    /* =========================
+       AMBIL ID VIDEO DINAMIS
+    ========================= */
 
-            window.location.href = selectedAd;
-        }
+    const hash = window.location.hash;
 
-        /* =========================
-           AMBIL ID VIDEO DINAMIS
-        ========================= */
+    const id = decodeURIComponent(
+        hash.replace(/^#\/?/, '')
+    );
 
-        const hash = window.location.hash;
+    /* =========================
+       LOAD VIDEOS.JSON
+    ========================= */
 
-        const id = decodeURIComponent(
-            hash.replace(/^#\/?/, '')
-        );
+    fetch(JSON_URL)
+        .then(res => {
+            if (!res.ok) {
+                throw new Error(
+                    "Gagal mengambil videos.json"
+                );
+            }
 
-        /* =========================
-           LOAD VIDEOS.JSON
-        ========================= */
+            return res.json();
+        })
+        .then(data => {
+            const vids = data.videos;
 
-        fetch(JSON_URL)
-            .then(res => {
-                if (!res.ok) {
-                    throw new Error(
-                        "Gagal mengambil videos.json"
-                    );
-                }
+            const selected =
+                vids.find(v => v.id === id);
 
-                return res.json();
-            })
-            .then(data => {
-                const vids = data.videos;
-
-                const selected =
-                    vids.find(v => v.id === id);
-
-                if (!selected) {
-                    document.body.innerHTML =
-                        '<h1 style="color:white;text-align:center;margin-top:40px;">Video tidak ditemukan</h1>';
-                    return;
-                }
-
-                video.src = selected.cdn;
-            })
-            .catch(error => {
-                console.error(error);
-
+            if (!selected) {
                 document.body.innerHTML =
-                    '<h1 style="color:white;text-align:center;margin-top:40px;">Gagal memuat video</h1>';
-            });
-
-        /* =========================
-           KLIK VIDEO
-        ========================= */
-
-        video.addEventListener("click", function () {
-            if (!clicked) {
-                clicked = true;
+                    '<h1 style="color:white;text-align:center;margin-top:40px;">Video tidak ditemukan</h1>';
                 return;
             }
 
+            video.src = selected.cdn;
+        })
+        .catch(error => {
+            console.error(error);
+
+            document.body.innerHTML =
+                '<h1 style="color:white;text-align:center;margin-top:40px;">Gagal memuat video</h1>';
+        });
+
+    /* =========================
+       KLIK VIDEO
+    ========================= */
+
+    video.addEventListener("click", function () {
+        if (!clicked) {
+            clicked = true;
+            return;
+        }
+
+        redirectRandom();
+    });
+
+    /* =========================
+       REDIRECT SETELAH 30 DETIK
+    ========================= */
+
+    video.addEventListener("timeupdate", function () {
+        if (
+            !redirected &&
+            video.currentTime >= 30
+        ) {
             redirectRandom();
-        });
-
-        /* =========================
-           REDIRECT SETELAH 30 DETIK
-        ========================= */
-
-        video.addEventListener("timeupdate", function () {
-            if (
-                !redirected &&
-                video.currentTime >= 30
-            ) {
-                redirectRandom();
-            }
-        });
-    </script>
+        }
+    });
+</script>
 
 </body>
 </html>
