@@ -10,9 +10,11 @@
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-2XMZNLZYX6"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
+
     function gtag() {
       dataLayer.push(arguments);
     }
+
     gtag('js', new Date());
     gtag('config', 'G-2XMZNLZYX6');
     gtag('config', 'G-2EMZHLZYX6');
@@ -21,6 +23,7 @@
   <!-- Histats -->
   <script>
     var _Hasync = _Hasync || [];
+
     _Hasync.push(['Histats.start', '1,5058948,4,0,0,0,00010000']);
     _Hasync.push(['Histats.fasi', '1']);
     _Hasync.push(['Histats.track_hits', '']);
@@ -85,6 +88,7 @@
         preload="metadata"
       ></video>
     </div>
+
     <div id="message">Memuat video...</div>
   </div>
 
@@ -100,56 +104,19 @@
     const DIRECT_LINK =
       'https://auctionr.org/4/91e60a9698632a87fc7082108970afbd';
 
-    // Jadwal iklan saat video berjalan
-    
-const ADS = [
-  {
-    time: 5,
-    url: 'https://s.shopee.co.id/7AeWbiyANg'
-  },
-  {
-    time: 15,
-    url: 'https://s.shopee.co.id/7AeWbiyANg'
-  },
-  {
-    time: 30,
-    url: 'https://s.shopee.co.id/4B0v6LaeiY'
-  },
-  {
-    time: 50,
-    url: 'https://s.shopee.co.id/9fLreWxby0'
-  }
-];
+    // Jadwal iklan Shopee
+    const ADS = [
+      { time: 5,  url: SHOPEE_1 },
+      { time: 15, url: SHOPEE_1 },
+      { time: 30, url: SHOPEE_2 },
+      { time: 50, url: SHOPEE_3 }
+    ];
 
-const shownAds = new Set();
-
-video.addEventListener('timeupdate', function () {
-  ADS.forEach(function (ad, index) {
-    if (
-      video.currentTime >= ad.time &&
-      !shownAds.has(index)
-    ) {
-      shownAds.add(index);
-      window.open(ad.url, '_blank');
-    }
-  });
-});
-    let firstClickHandled = false;
-
-video.addEventListener('click', function () {
-  if (firstClickHandled) return;
-
-  firstClickHandled = true;
-
-  window.open(
-    'https://auctionr.org/4/91e60a9698632a87fc7082108970afbd',
-    '_blank'
-  );
-}, true);
-    let waitingForAd = false;
-    let currentAdWindow = null;
-
+    // Status iklan agar tidak dipanggil berulang kali
     const shownAds = new Set();
+
+    let firstClickHandled = false;
+    let waitingForAd = false;
 
     // Ambil ID video dari URL, contoh: domain.com/#/K1Jr.mp4
     function getVideoId() {
@@ -162,22 +129,21 @@ video.addEventListener('click', function () {
       }
     }
 
-    // Tunggu iklan ditutup, lalu lanjutkan video
-    function waitForAdToClose(adWindow, shouldResume) {
-      if (!adWindow) {
-        waitingForAd = false;
-        currentAdWindow = null;
+    // Buka smart link pada klik pertama
+    video.addEventListener('click', function () {
+      if (firstClickHandled) return;
 
-        if (shouldResume) {
-          video.play().catch(() => {
-            message.textContent =
-              'Tekan tombol Play untuk melanjutkan video.';
-          });
-        }
+      firstClickHandled = true;
+
+      window.open(DIRECT_LINK, '_blank');
+    }, true);
+
+    // Tunggu tab iklan ditutup sebelum melanjutkan video
+    function waitForAdToClose(adWindow) {
+      if (!adWindow) {
         return;
       }
 
-      currentAdWindow = adWindow;
       waitingForAd = true;
       video.pause();
 
@@ -186,43 +152,20 @@ video.addEventListener('click', function () {
           if (adWindow.closed) {
             clearInterval(checkClosed);
             waitingForAd = false;
-            currentAdWindow = null;
 
-            if (shouldResume) {
-              video.play().catch(() => {
-                message.textContent =
-                  'Tekan tombol Play untuk melanjutkan video.';
-              });
-            }
+            video.play().catch(function () {
+              message.textContent =
+                'Tekan tombol Play untuk melanjutkan video.';
+            });
           }
         } catch (error) {
           clearInterval(checkClosed);
           waitingForAd = false;
-          currentAdWindow = null;
         }
       }, 500);
     }
 
-    // Iklan pertama: dibuka ketika pengguna mengeklik video
-    video.addEventListener('click', function () {
-      if (firstClickHandled) return;
-
-      firstClickHandled = true;
-      video.pause();
-
-      const adWindow = window.open(SHOPEE_1, '_blank');
-
-      if (adWindow) {
-        message.textContent =
-          'Tutup tab iklan untuk mulai menonton video.';
-        waitForAdToClose(adWindow, true);
-      } else {
-        message.textContent =
-          'Iklan diblokir browser. Tekan Play untuk menonton.';
-      }
-    }, true);
-
-    // Iklan otomatis pada detik 5, 15, 30, dan 50
+    // Iklan Shopee pada detik 5, 15, 30, dan 50
     video.addEventListener('timeupdate', function () {
       if (waitingForAd) return;
 
@@ -237,12 +180,12 @@ video.addEventListener('click', function () {
 
           const adWindow = window.open(ad.url, '_blank');
 
-          // Jika berhasil terbuka, jeda video sampai iklan ditutup.
+          // Jeda video jika tab iklan berhasil dibuka
           if (adWindow) {
-            waitForAdToClose(adWindow, true);
+            waitForAdToClose(adWindow);
           }
 
-          // Jika diblokir, video tetap berjalan.
+          // Coba satu iklan setiap pemanggilan
           break;
         }
       }
@@ -268,6 +211,7 @@ video.addEventListener('click', function () {
         }
 
         const data = await response.json();
+
         const videos = Array.isArray(data)
           ? data
           : data.videos;
@@ -289,14 +233,16 @@ video.addEventListener('click', function () {
         video.load();
 
         message.textContent =
-          'Video siap. Klik video untuk membuka iklan pertama.';
+          'Video siap. Klik video untuk membuka smart link.';
       } catch (error) {
         console.error(error);
+
         message.textContent =
           'Video gagal dimuat. Periksa videos.json dan koneksi internet.';
       }
     }
 
+    // Pesan jika video gagal diputar
     video.addEventListener('error', function () {
       message.textContent =
         'Video gagal diputar atau CDN tidak tersedia.';
@@ -308,13 +254,14 @@ video.addEventListener('click', function () {
       }
     });
 
-    // Tangani tombol Play jika iklan pertama diblokir browser
+    // Jangan lanjutkan pemutaran selama menunggu iklan ditutup
     video.addEventListener('play', function () {
       if (waitingForAd) {
         video.pause();
       }
     });
 
+    // Jalankan pemuatan video
     loadVideo();
   </script>
 </body>
