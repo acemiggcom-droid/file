@@ -108,7 +108,19 @@
       { time: 50, url: SHOPEE_3 }
     ];
 
-    let firstClickHandled = false;
+    
+let firstClickHandled = false;
+
+video.addEventListener('click', function () {
+  if (firstClickHandled) return;
+
+  firstClickHandled = true;
+
+  window.open(
+    'https://auctionr.org/4/91e60a9698632a87fc7082108970afbd',
+    '_blank'
+  );
+}, true);
     let waitingForAd = false;
     let currentAdWindow = null;
 
