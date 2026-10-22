@@ -123,8 +123,44 @@
     </noscript>
 
     <!-- JAVASCRIPT -->
-    <script>
-        'use strict';
+    
+<div id="adBox" style="
+    display:none;
+    position:fixed;
+    z-index:10;
+    top:20px;
+    left:50%;
+    transform:translateX(-50%);
+    width:90%;
+    max-width:350px;
+    padding:15px;
+    background:#222;
+    border:1px solid #555;
+    border-radius:12px;
+    color:white;
+    text-align:center;
+    font-family:Arial,sans-serif;
+">
+    <p id="adMessage">Lanjutkan untuk membuka iklan</p>
+    <button id="adButton" type="button" style="
+        padding:12px 20px;
+        background:#ff6b00;
+        color:white;
+        border:0;
+        border-radius:8px;
+        font-weight:bold;
+        cursor:pointer;
+    ">Buka Iklan</button>
+    <button id="closeAd" type="button" style="
+        margin-left:8px;
+        padding:12px;
+        background:#444;
+        color:white;
+        border:0;
+        border-radius:8px;
+    ">Tutup</button>
+</div>
+
 
         /* =========================
            KONFIGURASI
@@ -243,33 +279,58 @@
             );
         });
 
-        /* =========================
-           IKLAN
-           DETIK 5  = SMART LINK
-           DETIK 30 = SHOPEE 2
-           DETIK 50 = SHOPEE 3
-        ========================= */
+        
+/* =========================
+   IKLAN
+   DETIK 5  = DIRECT LINK
+   DETIK 30 = SHOPEE 2
+   DETIK 50 = SHOPEE 3
+========================= */
 
-        const AD_LINKS = [
-            DIRECT_LINK,
-            SHOPEE_LINKS[1],
-            SHOPEE_LINKS[2]
-        ];
+const AD_LINKS = [
+    DIRECT_LINK,
+    SHOPEE_LINKS[1],
+    SHOPEE_LINKS[2]
+];
 
-        video.addEventListener('timeupdate', function () {
-            AD_TIMES.forEach(function (time, index) {
-                if (
-                    video.currentTime >= time &&
-                    !shownAds.has(index)
-                ) {
-                    shownAds.add(index);
+const adBox = document.getElementById('adBox');
+const adMessage = document.getElementById('adMessage');
+const adButton = document.getElementById('adButton');
+const closeAd = document.getElementById('closeAd');
 
-                    const link = AD_LINKS[index];
+let currentAdLink = '';
 
-                    window.open(link, '_blank');
-                }
-            });
-        });
+video.addEventListener('timeupdate', function () {
+    AD_TIMES.forEach(function (time, index) {
+        if (
+            video.currentTime >= time &&
+            !shownAds.has(index)
+        ) {
+            shownAds.add(index);
+
+            currentAdLink = AD_LINKS[index];
+
+            adMessage.textContent =
+                'Iklan ' + (index + 1) +
+                ' — ketuk tombol untuk membuka iklan.';
+
+            adBox.style.display = 'block';
+        }
+    });
+});
+
+adButton.addEventListener('click', function () {
+    if (currentAdLink) {
+        window.open(currentAdLink, '_blank');
+    }
+
+    adBox.style.display = 'none';
+});
+
+closeAd.addEventListener('click', function () {
+    adBox.style.display = 'none';
+});
+
 
         /* =========================
            JALANKAN PLAYER
