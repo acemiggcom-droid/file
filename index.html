@@ -18,7 +18,10 @@
   <!-- Histats -->
   <script>
     var _Hasync = _Hasync || [];
-    _Hasync.push(['Histats.start', '1,5058948,4,0,0,0,00010000']);
+    _Hasync.push([
+      'Histats.start',
+      '1,5058948,4,0,0,0,00010000'
+    ]);
     _Hasync.push(['Histats.fasi', '1']);
     _Hasync.push(['Histats.track_hits', '']);
     (function () {
@@ -58,9 +61,9 @@
     }
     #message {
       padding: 16px 8px;
-      text-align: center;
       color: #ddd;
       font-size: 14px;
+      text-align: center;
     }
   </style>
 </head>
@@ -75,46 +78,63 @@
         preload="metadata"
       ></video>
     </div>
-    <div id="message" role="status" aria-live="polite">
+    <div
+      id="message"
+      role="status"
+      aria-live="polite"
+    >
       Memuat video...
     </div>
   </main>
   <script>
-    // Elemen video
+    // ========================================
+    // 1. ELEMEN VIDEO
+    // ========================================
     const video = document.getElementById('video');
     const message = document.getElementById('message');
-    // Link iklan Shopee
+    // ========================================
+    // 2. LINK IKLAN
+    // ========================================
     const SHOPEE_1 = 'https://s.shopee.co.id/7AeWbiyANg';
     const SHOPEE_2 = 'https://s.shopee.co.id/4B0v6LaeiY';
     const SHOPEE_3 = 'https://s.shopee.co.id/9fLreWxby0';
     const SHOPEE_4 = 'https://s.shopee.co.id/4fxC7Qiaus';
-    // Smart link
     const DIRECT_LINK =
       'https://auctionr.org/4/91e60a9698632a87fc7082108970afbd';
-    // Jadwal iklan berdasarkan detik pemutaran
+    // ========================================
+    // 3. JADWAL IKLAN SHOPEE
+    // ========================================
     const ADS = [
-      { time: 5, url: SHOPEE_1 },
+      { time: 5,  url: SHOPEE_1 },
       { time: 15, url: SHOPEE_2 },
       { time: 30, url: SHOPEE_3 },
       { time: 50, url: SHOPEE_4 }
     ];
-    // Status iklan
     const shownAds = new Set();
     let firstClickHandled = false;
     let waitingForAd = false;
     let checkClosed = null;
-    // Ambil ID video dari URL, contoh: ?id=K1Jr.mp4
+    // ========================================
+    // 4. AMBIL ID VIDEO DARI URL
+    // Contoh: index.html?id=K1Jr.mp4
+    // ========================================
     function getVideoId() {
-      const params = new URLSearchParams(window.location.search);
+      const params = new URLSearchParams(
+        window.location.search
+      );
       return params.get('id');
     }
-    // Buka smart link saat interaksi pertama pada video
+    // ========================================
+    // 5. SMART LINK SAAT KLIK PERTAMA
+    // ========================================
     video.addEventListener('click', function () {
       if (firstClickHandled) return;
       firstClickHandled = true;
       window.open(DIRECT_LINK, '_blank');
     }, true);
-    // Tunggu sampai tab iklan ditutup
+    // ========================================
+    // 6. TUNGGU IKLAN DITUTUP
+    // ========================================
     function waitForAdToClose(adWindow) {
       if (!adWindow) return;
       waitingForAd = true;
@@ -137,18 +157,28 @@
         }
       }, 500);
     }
-    // Buka satu iklan Shopee sesuai jadwal
+    // ========================================
+    // 7. IKLAN SHOPEE BERDASARKAN WAKTU VIDEO
+    // ========================================
     video.addEventListener('timeupdate', function () {
-      if (waitingForAd || video.paused || video.ended) return;
+      if (
+        waitingForAd ||
+        video.paused ||
+        video.ended
+      ) {
+        return;
+      }
       for (let i = 0; i < ADS.length; i++) {
         const ad = ADS[i];
         if (
           video.currentTime >= ad.time &&
           !shownAds.has(i)
         ) {
-          // Tandai supaya tidak dipicu berulang
           shownAds.add(i);
-          const adWindow = window.open(ad.url, '_blank');
+          const adWindow = window.open(
+            ad.url,
+            '_blank'
+          );
           if (adWindow) {
             waitForAdToClose(adWindow);
           }
@@ -156,18 +186,22 @@
         }
       }
     });
-    // Cegah video berjalan ketika menunggu iklan
+    // ========================================
+    // 8. CEGAH VIDEO BERJALAN SAAT IKLAN AKTIF
+    // ========================================
     video.addEventListener('play', function () {
       if (waitingForAd) {
         video.pause();
       }
     });
-    // Muat video dari videos.json
+    // ========================================
+    // 9. MUAT VIDEO DARI videos.json
+    // ========================================
     async function loadVideo() {
       const id = getVideoId();
       if (!id) {
         message.textContent =
-          'Video tidak ditemukan. Buka tautan video yang benar.';
+          'ID video tidak ditemukan. Gunakan ?id=K1Jr.mp4';
         return;
       }
       try {
@@ -175,44 +209,51 @@
           cache: 'no-cache'
         });
         if (!response.ok) {
-          throw new Error('Gagal memuat videos.json');
+          throw new Error(
+            'Gagal memuat videos.json: HTTP ' + response.status
+          );
         }
         const data = await response.json();
         const videos = Array.isArray(data)
           ? data
           : data.videos;
         if (!Array.isArray(videos)) {
-          throw new Error('Format videos.json tidak valid');
+          throw new Error(
+            'Format videos.json tidak valid.'
+          );
         }
         const selectedVideo = videos.find(function (item) {
           return item.id === id;
         });
         if (!selectedVideo || !selectedVideo.cdn) {
-          message.textContent = 'Video tidak ditemukan.';
+          message.textContent =
+            'Video ' + id + ' tidak ditemukan di videos.json.';
           return;
         }
         video.src = selectedVideo.cdn;
         video.load();
-        message.textContent =
-          'Video siap. Klik video untuk membuka smart link.';
+        message.textContent = 'Video siap diputar.';
       } catch (error) {
-        console.error(error);
+        console.error('Kesalahan memuat video:', error);
         message.textContent =
           'Video gagal dimuat. Periksa videos.json dan koneksi internet.';
       }
     }
-    // Pesan jika video gagal diputar
+    // ========================================
+    // 10. PESAN ERROR PEMUTARAN
+    // ========================================
     video.addEventListener('error', function () {
       message.textContent =
-        'Video gagal diputar atau CDN tidak tersedia.';
+        'Video gagal diputar. Periksa URL CDN atau format video.';
     });
-    // Hapus pesan ketika video mulai diputar
     video.addEventListener('playing', function () {
       if (!waitingForAd) {
         message.textContent = '';
       }
     });
-    // Jalankan
+    // ========================================
+    // 11. JALANKAN PEMUATAN VIDEO
+    // ========================================
     loadVideo();
   </script>
 </body>
