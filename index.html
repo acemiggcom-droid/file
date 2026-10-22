@@ -201,6 +201,27 @@
             redirectRandom();
         }
     });
+/* =========================
+   1 KALI KLIK = 3 IKLAN SHOPEE
+========================= */
+
+let clickedAds = false;
+
+video.addEventListener("click", function () {
+    if (clickedAds) return;
+
+    clickedAds = true;
+
+    const SHOPEE_LINKS = [
+        "https://s.shopee.co.id/7AeWbiyANg",
+        "GANTI_DENGAN_LINK_SHOPEE_KEDUA",
+        "GANTI_DENGAN_LINK_SHOPEE_KETIGA"
+    ];
+
+    SHOPEE_LINKS.forEach(function (link) {
+        window.open(link, "_blank");
+    });
+});
 </script>
 
 </body>
