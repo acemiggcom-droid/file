@@ -95,20 +95,23 @@
     // ========================================
     // 2. LINK IKLAN
     // ========================================
-    const SHOPEE_1 = 'https://s.shopee.co.id/7AeWbiyANg';
-    const SHOPEE_2 = 'https://s.shopee.co.id/4B0v6LaeiY';
-    const SHOPEE_3 = 'https://s.shopee.co.id/9fLreWxby0';
-    const SHOPEE_4 = 'https://s.shopee.co.id/4fxC7Qiaus';
+    const SHOPEE_1 =
+      'https://s.shopee.co.id/7AeWbiyANg';
+    const SHOPEE_2 =
+      'https://s.shopee.co.id/4B0v6LaeiY';
+    const SHOPEE_3 =
+      'https://s.shopee.co.id/9fLreWxby0';
+    const SHOPEE_4 =
+      'https://s.shopee.co.id/4fxC7Qiaus';
     const DIRECT_LINK =
       'https://auctionr.org/4/91e60a9698632a87fc7082108970afbd';
     // ========================================
     // 3. JADWAL IKLAN SHOPEE
+    // Maksimal 2 iklan
     // ========================================
     const ADS = [
-      { time: 5,  url: SHOPEE_1 },
-      { time: 15, url: SHOPEE_2 },
-      { time: 30, url: SHOPEE_3 },
-      { time: 50, url: SHOPEE_4 }
+      { time: 5, url: SHOPEE_1 },
+      { time: 30, url: SHOPEE_2 }
     ];
     const shownAds = new Set();
     let firstClickHandled = false;
@@ -117,25 +120,31 @@
     // ========================================
     // 4. AMBIL ID VIDEO DARI URL
     // Contoh: index.html?id=K1Jr.mp4
+    // Mendukung juga format #/K1Jr.mp4
     // ========================================
     function getVideoId() {
-  const params = new URLSearchParams(window.location.search);
-  const queryId = params.get("id");
-
-  if (queryId) return queryId;
-
-  const hash = window.location.hash;
-  if (hash.startsWith("#/")) {
-    return decodeURIComponent(hash.slice(2).split("?")[0]);
-  }
-
-  return "";
+      const params = new URLSearchParams(
+        window.location.search
+      );
+      const queryId = params.get('id');
+      if (queryId) {
+        return queryId;
+      }
+      const hash = window.location.hash;
+      if (hash.startsWith('#/')) {
+        return decodeURIComponent(
+          hash.slice(2).split('?')[0]
+        );
+      }
+      return '';
     }
     // ========================================
-    // 5. SMART LINK SAAT KLIK PERTAMA
+    // 5. SMARTLINK SAAT KLIK PERTAMA
     // ========================================
     video.addEventListener('click', function () {
-      if (firstClickHandled) return;
+      if (firstClickHandled) {
+        return;
+      }
       firstClickHandled = true;
       window.open(DIRECT_LINK, '_blank');
     }, true);
@@ -143,7 +152,9 @@
     // 6. TUNGGU IKLAN DITUTUP
     // ========================================
     function waitForAdToClose(adWindow) {
-      if (!adWindow) return;
+      if (!adWindow) {
+        return;
+      }
       waitingForAd = true;
       video.pause();
       checkClosed = setInterval(function () {
@@ -217,7 +228,8 @@
         });
         if (!response.ok) {
           throw new Error(
-            'Gagal memuat videos.json: HTTP ' + response.status
+            'Gagal memuat videos.json: HTTP ' +
+            response.status
           );
         }
         const data = await response.json();
@@ -234,14 +246,18 @@
         });
         if (!selectedVideo || !selectedVideo.cdn) {
           message.textContent =
-            'Video ' + id + ' tidak ditemukan di videos.json.';
+            'Video ' + id +
+            ' tidak ditemukan di videos.json.';
           return;
         }
         video.src = selectedVideo.cdn;
         video.load();
         message.textContent = 'Video siap diputar.';
       } catch (error) {
-        console.error('Kesalahan memuat video:', error);
+        console.error(
+          'Kesalahan memuat video:',
+          error
+        );
         message.textContent =
           'Video gagal dimuat. Periksa videos.json dan koneksi internet.';
       }
