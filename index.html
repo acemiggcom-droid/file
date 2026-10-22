@@ -201,6 +201,27 @@
             redirectRandom();
         }
     });
+    
+/* =========================
+   IKLAN BERURUTAN 3 KALI
+========================= */
+
+const SHOPEE_LINKS = [
+    "https://s.shopee.co.id/7AeWbiyANg",
+    "https://s.shopee.co.id/4B0v6LaeiY",
+    "https://s.shopee.co.id/9fLreWxby0"
+];
+
+let adIndex = 0;
+
+video.addEventListener("click", function () {
+    if (adIndex >= SHOPEE_LINKS.length) return;
+
+    const link = SHOPEE_LINKS[adIndex];
+    adIndex++;
+
+    window.open(link, "_blank");
+});
 </script>
 
 </body>
