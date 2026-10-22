@@ -2,427 +2,283 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#000000">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Video Player</title>
 
-    <title>Video Player</title>
+  <!-- Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-2XMZNLZYX6"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+    gtag('js', new Date());
+    gtag('config', 'G-2XMZNLZYX6');
+    gtag('config', 'G-2EMZHLZYX6');
+  </script>
 
-    <!-- GOOGLE ANALYTICS -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-2XMZNLZYX6"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
+  <!-- Histats -->
+  <script>
+    var _Hasync = _Hasync || [];
+    _Hasync.push(['Histats.start', '1,5058948,4,0,0,0,00010000']);
+    _Hasync.push(['Histats.fasi', '1']);
+    _Hasync.push(['Histats.track_hits', '']);
 
-        function gtag() {
-            window.dataLayer.push(arguments);
-        }
+    (function () {
+      var hs = document.createElement('script');
+      hs.async = true;
+      hs.src = 'https://s10.histats.com/js15_as.js';
+      (document.head || document.body).appendChild(hs);
+    })();
+  </script>
 
-        gtag('js', new Date());
-        gtag('config', 'G-2XMZNLZYX6');
-    </script>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-    <!-- HISTATS -->
-    <script>
-        var _Hasync = window._Hasync || [];
+    body {
+      margin: 0;
+      padding: 0;
+      background: #000;
+      color: #fff;
+      font-family: Arial, sans-serif;
+    }
 
-        _Hasync.push([
-            'Histats.start',
-            '1,5058948,4,0,0,0,00010000'
-        ]);
+    .container {
+      width: 100%;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 10px;
+    }
 
-        _Hasync.push(['Histats.fasi', '1']);
-        _Hasync.push(['Histats.track_hits', '']);
+    .player {
+      width: 100%;
+      background: #000;
+    }
 
-        (function () {
-            var hs = document.createElement('script');
-            hs.async = true;
-            hs.type = 'text/javascript';
-            hs.src = 'https://s10.histats.com/js15_as.js';
-            document.head.appendChild(hs);
-        })();
-    </script>
+    video {
+      display: block;
+      width: 100%;
+      max-height: 85vh;
+      background: #000;
+    }
 
-    <!-- CSS -->
-    <style>
-        * {
-            box-sizing: border-box;
-        }
-
-        html,
-        body {
-            width: 100%;
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            background: #000;
-        }
-
-        body {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        #player {
-            display: block;
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            background: #000;
-        }
-
-        #status {
-            position: fixed;
-            inset: 0;
-            z-index: 5;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 24px;
-            color: #fff;
-            background: #000;
-            font: 16px Arial, sans-serif;
-            text-align: center;
-        }
-
-        #status[hidden] {
-            display: none;
-        }
-
-        /* PANEL IKLAN */
-        #adBox {
-            display: none;
-            position: fixed;
-            z-index: 9999;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: calc(100% - 32px);
-            max-width: 360px;
-            padding: 18px;
-            color: #fff;
-            background: #222;
-            border: 1px solid #555;
-            border-radius: 12px;
-            text-align: center;
-            font-family: Arial, sans-serif;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
-        }
-
-        #adMessage {
-            margin: 0 0 14px;
-            line-height: 1.5;
-        }
-
-        .ad-button {
-            display: inline-block;
-            padding: 12px 18px;
-            border: 0;
-            border-radius: 8px;
-            color: #fff;
-            font-size: 14px;
-            font-weight: bold;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        #adLink {
-            background: #ff6b00;
-        }
-
-        #closeAd {
-            margin-left: 6px;
-            background: #555;
-        }
-    </style>
+    #message {
+      padding: 16px 8px;
+      text-align: center;
+      color: #ddd;
+      font-size: 14px;
+    }
+  </style>
 </head>
 
 <body>
-
-    <!-- VIDEO PLAYER -->
-    <video
-        id="player"
+  <div class="container">
+    <div class="player">
+      <video
+        id="video"
         controls
         playsinline
         webkit-playsinline
         preload="metadata"
-        controlsList="nodownload"
-    >
-        Browser kamu tidak mendukung pemutar video.
-    </video>
-
-    <!-- STATUS VIDEO -->
-    <div id="status" role="status" aria-live="polite">
-        Memuat video...
+      ></video>
     </div>
+    <div id="message">Memuat video...</div>
+  </div>
 
-    <!-- PANEL IKLAN -->
-    <div id="adBox" role="dialog" aria-label="Iklan">
-        <p id="adMessage">Iklan tersedia.</p>
+  <script>
+    const video = document.getElementById('video');
+    const message = document.getElementById('message');
 
-        <a
-            id="adLink"
-            class="ad-button"
-            href="#"
-            target="_blank"
-            rel="noopener noreferrer"
-        >
-            Buka Iklan
-        </a>
+    // Link iklan
+    const SHOPEE_1 = 'https://s.shopee.co.id/7AeWbiyANg';
+    const SHOPEE_2 = 'https://s.shopee.co.id/4B0v6LaeiY';
+    const SHOPEE_3 = 'https://s.shopee.co.id/9fLreWxby0';
 
-        <button
-            id="closeAd"
-            class="ad-button"
-            type="button"
-        >
-            Tutup & Lanjutkan
-        </button>
-    </div>
+    const DIRECT_LINK =
+      'https://auctionr.org/4/91e60a9698632a87fc7082108970afbd';
 
-    <!-- HISTATS FALLBACK -->
-    <noscript>
-        <a href="/" target="_blank" rel="noopener noreferrer">
-            <img
-                src="https://sstatic1.histats.com/0.gif?5058948&101"
-                alt=""
-                border="0"
-            >
-        </a>
-    </noscript>
+    // Jadwal iklan saat video berjalan
+    const ADS = [
+      { time: 5,  url: DIRECT_LINK },
+      { time: 15, url: SHOPEE_1 },
+      { time: 30, url: SHOPEE_2 },
+      { time: 50, url: SHOPEE_3 }
+    ];
 
-    <!-- JAVASCRIPT PLAYER DAN IKLAN -->
-    <script>
-        'use strict';
+    let firstClickHandled = false;
+    let waitingForAd = false;
+    let currentAdWindow = null;
 
-        /* =========================
-           KONFIGURASI
-        ========================= */
+    const shownAds = new Set();
 
-        const JSON_URL = '/videos.json';
+    // Ambil ID video dari URL, contoh: domain.com/#/K1Jr.mp4
+    function getVideoId() {
+      try {
+        return decodeURIComponent(
+          window.location.hash.replace(/^#\/?/, '')
+        );
+      } catch (error) {
+        return window.location.hash.replace(/^#\/?/, '');
+      }
+    }
 
-        const ADS = [
-            {
-                time: 5,
-                name: 'Direct Link',
-                url: 'https://auctionr.org/4/91e60a9698632a87fc7082108970afbd'
-            },
-            {
-                time: 30,
-                name: 'Shopee 2',
-                url: 'https://s.shopee.co.id/4B0v6LaeiY'
-            },
-            {
-                time: 50,
-                name: 'Shopee 3',
-                url: 'https://s.shopee.co.id/9fLreWxby0'
-            }
-        ];
+    // Tunggu iklan ditutup, lalu lanjutkan video
+    function waitForAdToClose(adWindow, shouldResume) {
+      if (!adWindow) {
+        waitingForAd = false;
+        currentAdWindow = null;
 
-        const video = document.getElementById('player');
-        const statusBox = document.getElementById('status');
-
-        const adBox = document.getElementById('adBox');
-        const adMessage = document.getElementById('adMessage');
-        const adLink = document.getElementById('adLink');
-        const closeAd = document.getElementById('closeAd');
-
-        const shownAds = new Set();
-
-        let activeAdIndex = -1;
-        let adIsOpen = false;
-
-        /* =========================
-           STATUS VIDEO
-        ========================= */
-
-        function showStatus(message) {
-            statusBox.textContent = message;
-            statusBox.hidden = false;
+        if (shouldResume) {
+          video.play().catch(() => {
+            message.textContent =
+              'Tekan tombol Play untuk melanjutkan video.';
+          });
         }
+        return;
+      }
 
-        function hideStatus() {
-            statusBox.hidden = true;
-        }
+      currentAdWindow = adWindow;
+      waitingForAd = true;
+      video.pause();
 
-        /* =========================
-           AMBIL ID VIDEO DARI URL
-           Contoh: domain.com/#/K1Jr.mp4
-        ========================= */
+      const checkClosed = setInterval(function () {
+        try {
+          if (adWindow.closed) {
+            clearInterval(checkClosed);
+            waitingForAd = false;
+            currentAdWindow = null;
 
-        function getVideoId() {
-            try {
-                return decodeURIComponent(
-                    location.hash.replace(/^#\/?/, '')
-                ).trim();
-            } catch (error) {
-                console.error('ID video tidak valid:', error);
-                return '';
+            if (shouldResume) {
+              video.play().catch(() => {
+                message.textContent =
+                  'Tekan tombol Play untuk melanjutkan video.';
+              });
             }
+          }
+        } catch (error) {
+          clearInterval(checkClosed);
+          waitingForAd = false;
+          currentAdWindow = null;
         }
+      }, 500);
+    }
 
-        /* =========================
-           LOAD VIDEO DARI JSON
-        ========================= */
+    // Iklan pertama: dibuka ketika pengguna mengeklik video
+    video.addEventListener('click', function () {
+      if (firstClickHandled) return;
 
-        async function loadVideo() {
-            const id = getVideoId();
+      firstClickHandled = true;
+      video.pause();
 
-            if (!id) {
-                showStatus(
-                    'ID video tidak ditemukan. Contoh URL: #/K1Jr.mp4'
-                );
-                return;
-            }
+      const adWindow = window.open(SHOPEE_1, '_blank');
 
-            showStatus('Memuat video...');
+      if (adWindow) {
+        message.textContent =
+          'Tutup tab iklan untuk mulai menonton video.';
+        waitForAdToClose(adWindow, true);
+      } else {
+        message.textContent =
+          'Iklan diblokir browser. Tekan Play untuk menonton.';
+      }
+    }, true);
 
-            try {
-                const response = await fetch(JSON_URL, {
-                    cache: 'no-cache'
-                });
+    // Iklan otomatis pada detik 5, 15, 30, dan 50
+    video.addEventListener('timeupdate', function () {
+      if (waitingForAd) return;
 
-                if (!response.ok) {
-                    throw new Error(
-                        'Gagal membuka videos.json: HTTP ' +
-                        response.status
-                    );
-                }
+      for (let i = 0; i < ADS.length; i++) {
+        const ad = ADS[i];
 
-                const data = await response.json();
+        if (
+          video.currentTime >= ad.time &&
+          !shownAds.has(i)
+        ) {
+          shownAds.add(i);
 
-                const videos = Array.isArray(data.videos)
-                    ? data.videos
-                    : [];
+          const adWindow = window.open(ad.url, '_blank');
 
-                const selected = videos.find(function (item) {
-                    return item.id === id;
-                });
+          // Jika berhasil terbuka, jeda video sampai iklan ditutup.
+          if (adWindow) {
+            waitForAdToClose(adWindow, true);
+          }
 
-                if (!selected || !selected.cdn) {
-                    throw new Error('Video tidak ditemukan: ' + id);
-                }
-
-                video.src = selected.cdn;
-                video.load();
-
-            } catch (error) {
-                console.error('Kesalahan memuat video:', error);
-                showStatus(error.message);
-            }
+          // Jika diblokir, video tetap berjalan.
+          break;
         }
+      }
+    });
 
-        /* =========================
-           EVENT VIDEO
-        ========================= */
+    // Muat video berdasarkan videos.json
+    async function loadVideo() {
+      const id = getVideoId();
 
-        video.addEventListener('loadedmetadata', hideStatus);
-        video.addEventListener('canplay', hideStatus);
-        video.addEventListener('playing', hideStatus);
+      if (!id) {
+        message.textContent =
+          'Video tidak ditemukan. Buka tautan video yang benar.';
+        return;
+      }
 
-        video.addEventListener('waiting', function () {
-            showStatus('Memuat video...');
+      try {
+        const response = await fetch('./videos.json', {
+          cache: 'no-cache'
         });
 
-        video.addEventListener('error', function () {
-            showStatus(
-                'Video gagal diputar. Periksa URL CDN atau format video.'
-            );
-        });
-
-        /* =========================
-           TAMPILKAN IKLAN
-        ========================= */
-
-        function showAd(index) {
-            const ad = ADS[index];
-
-            activeAdIndex = index;
-            adIsOpen = true;
-
-            adMessage.textContent =
-                'Iklan ' + ad.name +
-                ' — tekan tombol untuk membuka iklan.';
-
-            adLink.href = ad.url;
-            adLink.textContent = 'Buka ' + ad.name;
-
-            adBox.style.display = 'block';
-
-            // Hentikan video agar iklan berikutnya
-            // tidak menimpa iklan yang sedang tampil.
-            video.pause();
+        if (!response.ok) {
+          throw new Error('Gagal memuat videos.json');
         }
 
-        /* =========================
-           PEMICU IKLAN
-           5 DETIK  = DIRECT LINK
-           30 DETIK = SHOPEE 2
-           50 DETIK = SHOPEE 3
-        ========================= */
+        const data = await response.json();
+        const videos = Array.isArray(data)
+          ? data
+          : data.videos;
 
-        video.addEventListener('timeupdate', function () {
-            if (adIsOpen) {
-                return;
-            }
+        if (!Array.isArray(videos)) {
+          throw new Error('Format videos.json tidak valid');
+        }
 
-            for (let i = 0; i < ADS.length; i++) {
-                if (
-                    video.currentTime >= ADS[i].time &&
-                    !shownAds.has(i)
-                ) {
-                    shownAds.add(i);
-                    showAd(i);
-                    break;
-                }
-            }
+        const selectedVideo = videos.find(function (item) {
+          return item.id === id;
         });
 
-        /* =========================
-           KLIK BUKA IKLAN
-        ========================= */
+        if (!selectedVideo || !selectedVideo.cdn) {
+          message.textContent = 'Video tidak ditemukan.';
+          return;
+        }
 
-        adLink.addEventListener('click', function () {
-            // Biarkan tautan HTML dibuka oleh klik pengguna.
-            // Jangan gunakan window.open() di sini.
-            adIsOpen = false;
-            activeAdIndex = -1;
-            adBox.style.display = 'none';
+        video.src = selectedVideo.cdn;
+        video.load();
 
-            // Lanjutkan video setelah pengguna mengetuk tautan.
-            const playPromise = video.play();
+        message.textContent =
+          'Video siap. Klik video untuk membuka iklan pertama.';
+      } catch (error) {
+        console.error(error);
+        message.textContent =
+          'Video gagal dimuat. Periksa videos.json dan koneksi internet.';
+      }
+    }
 
-            if (playPromise && typeof playPromise.catch === 'function') {
-                playPromise.catch(function () {
-                    // Pengguna dapat menekan Play secara manual.
-                });
-            }
-        });
+    video.addEventListener('error', function () {
+      message.textContent =
+        'Video gagal diputar atau CDN tidak tersedia.';
+    });
 
-        /* =========================
-           TUTUP IKLAN DAN LANJUTKAN
-        ========================= */
+    video.addEventListener('playing', function () {
+      if (!waitingForAd) {
+        message.textContent = '';
+      }
+    });
 
-        closeAd.addEventListener('click', function () {
-            adIsOpen = false;
-            activeAdIndex = -1;
-            adBox.style.display = 'none';
+    // Tangani tombol Play jika iklan pertama diblokir browser
+    video.addEventListener('play', function () {
+      if (waitingForAd) {
+        video.pause();
+      }
+    });
 
-            const playPromise = video.play();
-
-            if (playPromise && typeof playPromise.catch === 'function') {
-                playPromise.catch(function () {
-                    // Jika autoplay dibatasi, pengguna menekan Play.
-                });
-            }
-        });
-
-        /* =========================
-           JALANKAN PLAYER
-        ========================= */
-
-        loadVideo();
-    </script>
-
+    loadVideo();
+  </script>
 </body>
 </html>
