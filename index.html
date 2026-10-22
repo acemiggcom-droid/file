@@ -101,12 +101,40 @@
       'https://auctionr.org/4/91e60a9698632a87fc7082108970afbd';
 
     // Jadwal iklan saat video berjalan
-    const ADS = [
-      { time: 5,  url: DIRECT_LINK },
-      { time: 15, url: SHOPEE_1 },
-      { time: 30, url: SHOPEE_2 },
-      { time: 50, url: SHOPEE_3 }
-    ];
+    
+const ADS = [
+  {
+    time: 5,
+    url: 'https://s.shopee.co.id/7AeWbiyANg'
+  },
+  {
+    time: 15,
+    url: 'https://s.shopee.co.id/7AeWbiyANg'
+  },
+  {
+    time: 30,
+    url: 'https://s.shopee.co.id/4B0v6LaeiY'
+  },
+  {
+    time: 50,
+    url: 'https://s.shopee.co.id/9fLreWxby0'
+  }
+];
+
+const shownAds = new Set();
+
+video.addEventListener('timeupdate', function () {
+  ADS.forEach(function (ad, index) {
+    if (
+      video.currentTime >= ad.time &&
+      !shownAds.has(index)
+    ) {
+      shownAds.add(index);
+      window.open(ad.url, '_blank');
+    }
+  });
+});
+
 
     
 let firstClickHandled = false;
