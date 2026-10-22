@@ -1,4 +1,5 @@
 
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -8,7 +9,7 @@
 
     <title>Video Player</title>
 
-    <!-- Google Analytics -->
+    <!-- GOOGLE ANALYTICS -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-2XMZNLZYX6"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -21,9 +22,9 @@
         gtag('config', 'G-2XMZNLZYX6');
     </script>
 
-    <!-- Histats -->
+    <!-- HISTATS -->
     <script>
-        var _Hasync = _Hasync || [];
+        var _Hasync = window._Hasync || [];
 
         _Hasync.push([
             'Histats.start',
@@ -75,6 +76,7 @@
         #status {
             position: fixed;
             inset: 0;
+            z-index: 5;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -83,11 +85,52 @@
             background: #000;
             font: 16px Arial, sans-serif;
             text-align: center;
-            z-index: 5;
         }
 
         #status[hidden] {
             display: none;
+        }
+
+        #adBox {
+            display: none;
+            position: fixed;
+            z-index: 10;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 350px;
+            padding: 16px;
+            color: #fff;
+            background: #222;
+            border: 1px solid #555;
+            border-radius: 12px;
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+
+        #adMessage {
+            margin: 0 0 14px;
+            line-height: 1.5;
+        }
+
+        .ad-button {
+            padding: 12px 18px;
+            border: 0;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        #adButton {
+            background: #ff6b00;
+        }
+
+        #closeAd {
+            margin-left: 6px;
+            background: #444;
         }
     </style>
 </head>
@@ -106,14 +149,29 @@
         Browser kamu tidak mendukung pemutar video.
     </video>
 
-    <!-- STATUS -->
-    <div id="status" role="status">
+    <!-- STATUS VIDEO -->
+    <div id="status" role="status" aria-live="polite">
         Memuat video...
+    </div>
+
+    <!-- KOTAK IKLAN -->
+    <div id="adBox" role="dialog" aria-live="polite" aria-label="Iklan">
+        <p id="adMessage">
+            Ketuk tombol untuk membuka iklan.
+        </p>
+
+        <button id="adButton" class="ad-button" type="button">
+            Buka Iklan
+        </button>
+
+        <button id="closeAd" class="ad-button" type="button">
+            Tutup
+        </button>
     </div>
 
     <!-- HISTATS FALLBACK -->
     <noscript>
-        <a href="/" target="_blank" rel="noopener">
+        <a href="/" target="_blank" rel="noopener noreferrer">
             <img
                 src="https://sstatic1.histats.com/0.gif?5058948&101"
                 alt=""
@@ -123,44 +181,8 @@
     </noscript>
 
     <!-- JAVASCRIPT -->
-    
-<div id="adBox" style="
-    display:none;
-    position:fixed;
-    z-index:10;
-    top:20px;
-    left:50%;
-    transform:translateX(-50%);
-    width:90%;
-    max-width:350px;
-    padding:15px;
-    background:#222;
-    border:1px solid #555;
-    border-radius:12px;
-    color:white;
-    text-align:center;
-    font-family:Arial,sans-serif;
-">
-    <p id="adMessage">Lanjutkan untuk membuka iklan</p>
-    <button id="adButton" type="button" style="
-        padding:12px 20px;
-        background:#ff6b00;
-        color:white;
-        border:0;
-        border-radius:8px;
-        font-weight:bold;
-        cursor:pointer;
-    ">Buka Iklan</button>
-    <button id="closeAd" type="button" style="
-        margin-left:8px;
-        padding:12px;
-        background:#444;
-        color:white;
-        border:0;
-        border-radius:8px;
-    ">Tutup</button>
-</div>
-
+    <script>
+        'use strict';
 
         /* =========================
            KONFIGURASI
@@ -177,28 +199,43 @@
             'https://s.shopee.co.id/9fLreWxby0'
         ];
 
+        // Waktu kemunculan iklan dalam detik.
         const AD_TIMES = [5, 30, 50];
 
+        // Urutan link iklan sesuai AD_TIMES.
+        const AD_LINKS = [
+            DIRECT_LINK,
+            SHOPEE_LINKS[1],
+            SHOPEE_LINKS[2]
+        ];
+
         const video = document.getElementById('player');
-        const status = document.getElementById('status');
+        const statusBox = document.getElementById('status');
+
+        const adBox = document.getElementById('adBox');
+        const adMessage = document.getElementById('adMessage');
+        const adButton = document.getElementById('adButton');
+        const closeAd = document.getElementById('closeAd');
 
         const shownAds = new Set();
+
+        let currentAdLink = '';
 
         /* =========================
            STATUS VIDEO
         ========================= */
 
         function showStatus(message) {
-            status.textContent = message;
-            status.hidden = false;
+            statusBox.textContent = message;
+            statusBox.hidden = false;
         }
 
         function hideStatus() {
-            status.hidden = true;
+            statusBox.hidden = true;
         }
 
         /* =========================
-           AMBIL ID VIDEO
+           AMBIL ID VIDEO DARI URL
            Contoh: domain.com/#/K1Jr.mp4
         ========================= */
 
@@ -208,13 +245,13 @@
                     location.hash.replace(/^#\/?/, '')
                 ).trim();
             } catch (error) {
-                console.error(error);
+                console.error('ID video tidak valid:', error);
                 return '';
             }
         }
 
         /* =========================
-           LOAD VIDEO DARI JSON
+           LOAD VIDEO DARI videos.json
         ========================= */
 
         async function loadVideo() {
@@ -222,7 +259,7 @@
 
             if (!id) {
                 showStatus(
-                    'ID video tidak ditemukan. Gunakan URL #/J1Mu.mp4'
+                    'ID video tidak ditemukan. Gunakan URL #/K1Jr.mp4'
                 );
                 return;
             }
@@ -235,7 +272,10 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error('Gagal membuka videos.json');
+                    throw new Error(
+                        'Gagal membuka videos.json (' +
+                        response.status + ')'
+                    );
                 }
 
                 const data = await response.json();
@@ -244,9 +284,9 @@
                     ? data.videos
                     : [];
 
-                const selected = videos.find(
-                    item => item.id === id
-                );
+                const selected = videos.find(function (item) {
+                    return item.id === id;
+                });
 
                 if (!selected || !selected.cdn) {
                     throw new Error('Video tidak ditemukan: ' + id);
@@ -256,13 +296,13 @@
                 video.load();
 
             } catch (error) {
-                console.error(error);
+                console.error('Kesalahan memuat video:', error);
                 showStatus(error.message);
             }
         }
 
         /* =========================
-           EVENT VIDEO
+           EVENT PEMUTAR VIDEO
         ========================= */
 
         video.addEventListener('loadedmetadata', hideStatus);
@@ -279,61 +319,63 @@
             );
         });
 
-        
-/* =========================
-   IKLAN
-   DETIK 5  = DIRECT LINK
-   DETIK 30 = SHOPEE 2
-   DETIK 50 = SHOPEE 3
-========================= */
+        /* =========================
+           SISTEM IKLAN
+           5 DETIK  = DIRECT LINK
+           30 DETIK = SHOPEE LINK 2
+           50 DETIK = SHOPEE LINK 3
+        ========================= */
 
-const AD_LINKS = [
-    DIRECT_LINK,
-    SHOPEE_LINKS[1],
-    SHOPEE_LINKS[2]
-];
+        video.addEventListener('timeupdate', function () {
+            AD_TIMES.forEach(function (time, index) {
+                if (
+                    video.currentTime >= time &&
+                    !shownAds.has(index)
+                ) {
+                    shownAds.add(index);
 
-const adBox = document.getElementById('adBox');
-const adMessage = document.getElementById('adMessage');
-const adButton = document.getElementById('adButton');
-const closeAd = document.getElementById('closeAd');
+                    currentAdLink = AD_LINKS[index];
 
-let currentAdLink = '';
+                    adMessage.textContent =
+                        'Iklan ' + (index + 1) +
+                        '. Ketuk "Buka Iklan" untuk melanjutkan.';
 
-video.addEventListener('timeupdate', function () {
-    AD_TIMES.forEach(function (time, index) {
-        if (
-            video.currentTime >= time &&
-            !shownAds.has(index)
-        ) {
-            shownAds.add(index);
-
-            currentAdLink = AD_LINKS[index];
-
-            adMessage.textContent =
-                'Iklan ' + (index + 1) +
-                ' — ketuk tombol untuk membuka iklan.';
-
-            adBox.style.display = 'block';
-        }
-    });
-});
-
-adButton.addEventListener('click', function () {
-    if (currentAdLink) {
-        window.open(currentAdLink, '_blank');
-    }
-
-    adBox.style.display = 'none';
-});
-
-closeAd.addEventListener('click', function () {
-    adBox.style.display = 'none';
-});
-
+                    adBox.style.display = 'block';
+                }
+            });
+        });
 
         /* =========================
-           JALANKAN PLAYER
+           BUKA IKLAN
+        ========================= */
+
+        adButton.addEventListener('click', function () {
+            if (!currentAdLink) {
+                return;
+            }
+
+            // Dibuka melalui tindakan langsung pengguna.
+            window.open(
+                currentAdLink,
+                '_blank',
+                'noopener,noreferrer'
+            );
+
+            adBox.style.display = 'none';
+            currentAdLink = '';
+        });
+
+        /* =========================
+           TUTUP KOTAK IKLAN
+        ========================= */
+
+        closeAd.addEventListener('click', function () {
+            adBox.style.display = 'none';
+            currentAdLink = '';
+        });
+
+        /* =========================
+           MULAI PLAYER
         ========================= */
 
         loadVideo();
@@ -341,4 +383,3 @@ closeAd.addEventListener('click', function () {
 
 </body>
 </html>
-
