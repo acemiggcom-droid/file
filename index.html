@@ -105,31 +105,42 @@
       'https://auctionr.org/4/91e60a9698632a87fc7082108970afbd';
 
     // Jadwal iklan Shopee
-    const ADS = [
-      { time: 5,  url: SHOPEE_1 },
-      { time: 15, url: SHOPEE_1 },
-      { time: 30, url: SHOPEE_2 },
-      { time: 50, url: SHOPEE_3 }
-    ];
+    
+const ADS = [
+  { time: 5,  url: SHOPEE_1 },
+  { time: 15, url: SHOPEE_1 },
+  { time: 30, url: SHOPEE_2 },
+  { time: 50, url: SHOPEE_3 }
+];
 
-    // Status iklan agar tidak dipanggil berulang kali
-    const shownAds = new Set();
+const shownAds = new Set();
+let firstClickHandled = false;
 
-    let firstClickHandled = false;
-    let waitingForAd = false;
+// Smart link saat interaksi pertama dengan video
+video.addEventListener('click', function () {
+  if (firstClickHandled) return;
+  firstClickHandled = true;
 
-    // Ambil ID video dari URL, contoh: domain.com/#/K1Jr.mp4
-    function getVideoId() {
-      try {
-        return decodeURIComponent(
-          window.location.hash.replace(/^#\/?/, '')
-        );
-      } catch (error) {
-        return window.location.hash.replace(/^#\/?/, '');
-      }
+  window.open(DIRECT_LINK, '_blank');
+});
+
+// Iklan berdasarkan waktu video
+video.addEventListener('timeupdate', function () {
+  for (let i = 0; i < ADS.length; i++) {
+    const ad = ADS[i];
+
+    if (
+      video.currentTime >= ad.time &&
+      !shownAds.has(i)
+    ) {
+      shownAds.add(i);
+      window.open(ad.url, '_blank');
+      break;
     }
+  }
+});
 
-    // Buka smart link pada klik pertama
+ // Buka smart link pada klik pertama
     video.addEventListener('click', function () {
       if (firstClickHandled) return;
 
