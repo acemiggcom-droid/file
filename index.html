@@ -119,10 +119,17 @@
     // Contoh: index.html?id=K1Jr.mp4
     // ========================================
     function getVideoId() {
-      const params = new URLSearchParams(
-        window.location.search
-      );
-      return params.get('id');
+  const params = new URLSearchParams(window.location.search);
+  const queryId = params.get("id");
+
+  if (queryId) return queryId;
+
+  const hash = window.location.hash;
+  if (hash.startsWith("#/")) {
+    return decodeURIComponent(hash.slice(2).split("?")[0]);
+  }
+
+  return "";
     }
     // ========================================
     // 5. SMART LINK SAAT KLIK PERTAMA
