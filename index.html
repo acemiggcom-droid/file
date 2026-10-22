@@ -1,33 +1,26 @@
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Video Player</title>
-
   <!-- Google Analytics -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-2XMZNLZYX6"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
-
     function gtag() {
       dataLayer.push(arguments);
     }
-
     gtag('js', new Date());
     gtag('config', 'G-2XMZNLZYX6');
     gtag('config', 'G-2EMZHLZYX6');
   </script>
-
   <!-- Histats -->
   <script>
     var _Hasync = _Hasync || [];
-
     _Hasync.push(['Histats.start', '1,5058948,4,0,0,0,00010000']);
     _Hasync.push(['Histats.fasi', '1']);
     _Hasync.push(['Histats.track_hits', '']);
-
     (function () {
       var hs = document.createElement('script');
       hs.async = true;
@@ -35,12 +28,11 @@
       (document.head || document.body).appendChild(hs);
     })();
   </script>
-
+  <!-- CSS -->
   <style>
     * {
       box-sizing: border-box;
     }
-
     body {
       margin: 0;
       padding: 0;
@@ -48,26 +40,22 @@
       color: #fff;
       font-family: Arial, sans-serif;
     }
-
     .container {
       width: 100%;
       max-width: 1000px;
       margin: 0 auto;
       padding: 10px;
     }
-
     .player {
       width: 100%;
       background: #000;
     }
-
     video {
       display: block;
       width: 100%;
       max-height: 85vh;
       background: #000;
     }
-
     #message {
       padding: 16px 8px;
       text-align: center;
@@ -76,9 +64,8 @@
     }
   </style>
 </head>
-
 <body>
-  <div class="container">
+  <main class="container">
     <div class="player">
       <video
         id="video"
@@ -88,60 +75,56 @@
         preload="metadata"
       ></video>
     </div>
-
-    <div id="message">Memuat video...</div>
-  </div>
-
+    <div id="message" role="status" aria-live="polite">
+      Memuat video...
+    </div>
+  </main>
   <script>
+    // Elemen video
     const video = document.getElementById('video');
     const message = document.getElementById('message');
-
-    // Link iklan
+    // Link iklan Shopee
     const SHOPEE_1 = 'https://s.shopee.co.id/7AeWbiyANg';
     const SHOPEE_2 = 'https://s.shopee.co.id/4B0v6LaeiY';
     const SHOPEE_3 = 'https://s.shopee.co.id/9fLreWxby0';
     const SHOPEE_4 = 'https://s.shopee.co.id/4fxC7Qiaus';
-    
+    // Smart link
     const DIRECT_LINK =
       'https://auctionr.org/4/91e60a9698632a87fc7082108970afbd';
-
-    
-    // Jadwal iklan Shopee
+    // Jadwal iklan berdasarkan detik pemutaran
     const ADS = [
-      { time: 5,  url: SHOPEE_1 },
+      { time: 5, url: SHOPEE_1 },
       { time: 15, url: SHOPEE_2 },
       { time: 30, url: SHOPEE_3 },
       { time: 50, url: SHOPEE_4 }
     ];
-
+    // Status iklan
     const shownAds = new Set();
-
     let firstClickHandled = false;
     let waitingForAd = false;
     let checkClosed = null;
-
-    // Smart link hanya sekali saat interaksi pertama
+    // Ambil ID video dari URL, contoh: ?id=J1Jr.mp4
+    function getVideoId() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('id');
+    }
+    // Buka smart link saat interaksi pertama pada video
     video.addEventListener('click', function () {
       if (firstClickHandled) return;
-
       firstClickHandled = true;
       window.open(DIRECT_LINK, '_blank');
     }, true);
-
-    // Jeda video sampai tab iklan ditutup
+    // Tunggu sampai tab iklan ditutup
     function waitForAdToClose(adWindow) {
       if (!adWindow) return;
-
       waitingForAd = true;
       video.pause();
-
       checkClosed = setInterval(function () {
         try {
           if (adWindow.closed) {
             clearInterval(checkClosed);
             checkClosed = null;
             waitingForAd = false;
-
             video.play().catch(function () {
               message.textContent =
                 'Tekan tombol Play untuk melanjutkan video.';
@@ -154,112 +137,82 @@
         }
       }, 500);
     }
-
-    // Buka iklan Shopee sesuai waktu video
+    // Buka satu iklan Shopee sesuai jadwal
     video.addEventListener('timeupdate', function () {
       if (waitingForAd || video.paused || video.ended) return;
-
       for (let i = 0; i < ADS.length; i++) {
         const ad = ADS[i];
-
         if (
           video.currentTime >= ad.time &&
           !shownAds.has(i)
         ) {
-          // Tandai agar iklan tidak terbuka berulang
+          // Tandai supaya tidak dipicu berulang
           shownAds.add(i);
-
           const adWindow = window.open(ad.url, '_blank');
-
           if (adWindow) {
             waitForAdToClose(adWindow);
           }
-
-          // Satu iklan setiap kali
           break;
         }
       }
     });
-
-    // Jangan biarkan video berjalan saat menunggu iklan
+    // Cegah video berjalan ketika menunggu iklan
     video.addEventListener('play', function () {
       if (waitingForAd) {
         video.pause();
       }
     });
-
-
-    // Muat video berdasarkan videos.json
+    // Muat video dari videos.json
     async function loadVideo() {
       const id = getVideoId();
-
       if (!id) {
         message.textContent =
           'Video tidak ditemukan. Buka tautan video yang benar.';
         return;
       }
-
       try {
         const response = await fetch('./videos.json', {
           cache: 'no-cache'
         });
-
         if (!response.ok) {
           throw new Error('Gagal memuat videos.json');
         }
-
         const data = await response.json();
-
         const videos = Array.isArray(data)
           ? data
           : data.videos;
-
         if (!Array.isArray(videos)) {
           throw new Error('Format videos.json tidak valid');
         }
-
         const selectedVideo = videos.find(function (item) {
           return item.id === id;
         });
-
         if (!selectedVideo || !selectedVideo.cdn) {
           message.textContent = 'Video tidak ditemukan.';
           return;
         }
-
         video.src = selectedVideo.cdn;
         video.load();
-
         message.textContent =
           'Video siap. Klik video untuk membuka smart link.';
       } catch (error) {
         console.error(error);
-
         message.textContent =
           'Video gagal dimuat. Periksa videos.json dan koneksi internet.';
       }
     }
-
     // Pesan jika video gagal diputar
     video.addEventListener('error', function () {
       message.textContent =
         'Video gagal diputar atau CDN tidak tersedia.';
     });
-
+    // Hapus pesan ketika video mulai diputar
     video.addEventListener('playing', function () {
       if (!waitingForAd) {
         message.textContent = '';
       }
     });
-
-    // Jangan lanjutkan pemutaran selama menunggu iklan ditutup
-    video.addEventListener('play', function () {
-      if (waitingForAd) {
-        video.pause();
-      }
-    });
-
-    // Jalankan pemuatan video
+    // Jalankan
     loadVideo();
   </script>
 </body>
